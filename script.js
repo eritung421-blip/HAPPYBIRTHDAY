@@ -386,6 +386,16 @@ window.addEventListener("resize", () => {
   if (opened) resizeConfettiCanvas();
 });
 
+
+
+function setRealVh() {
+  document.documentElement.style.setProperty("--real-vh", `${window.innerHeight}px`);
+}
+window.addEventListener("resize", setRealVh);
+window.addEventListener("orientationchange", setRealVh);
+setRealVh();
+
+
 function openEntryPopup() {
   if (!entryPopup) return;
 
@@ -400,15 +410,3 @@ function openEntryPopup() {
     closeEntryPopup();
   }, 5000);
 }
-
-  popupTimer = setTimeout(() => {
-    closeEntryPopup();
-  }, 5000);
-}
-
-function setRealVh() {
-  document.documentElement.style.setProperty("--real-vh", `${window.innerHeight}px`);
-}
-window.addEventListener("resize", setRealVh);
-window.addEventListener("orientationchange", setRealVh);
-setRealVh();
