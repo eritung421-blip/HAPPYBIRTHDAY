@@ -396,7 +396,13 @@ nebula{
 }
 .popup[aria-hidden="false"]{ display:flex; }
 
-.popupOverlay{ position:absolute; inset:0; z-index:0; }
+.popupOverlay{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(6px);
+}
 
 .confettiCanvas{
   position: fixed;
@@ -436,21 +442,7 @@ nebula{
   background: rgba(0,0,0,.5);
 }
 
-/* ✅ Popup 內彩帶層：在圖片後面，不蓋到圖片 */
-.confettiCanvas{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;        /* 彩帶底層 */
-  pointer-events: none;
-}
 
-.popupImg{
-  position: relative;
-  z-index: 1;        /* 圖片在上面 */
-}
-
-.popupClose{
-  z-index: 2;        /* X 在最上面 */
-}
+/* （已改為：彩帶在遮罩上、popupBox 下；避免被圖片整張蓋掉） */
+.popupImg{ position: relative; z-index: 2; }
+.popupClose{ z-index: 3; }
