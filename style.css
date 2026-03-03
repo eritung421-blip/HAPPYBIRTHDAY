@@ -11,7 +11,6 @@
   --shadow: 0 24px 70px rgba(0,0,0,.42);
   --radius: 22px;
 
-  /* 變色邊框用 */
   --g1: var(--mint);
   --g2: var(--mint2);
   --g3: var(--pink);
@@ -28,7 +27,7 @@ body{
   overflow-x:hidden;
 }
 
-/* ===== 背景：宇宙 + 星雲 + 暗角 ===== */
+/* ===== 背景 ===== */
 .bg{ position:fixed; inset:0; z-index:-1; }
 .nebula{
   position:absolute; inset:-60px;
@@ -115,7 +114,7 @@ body{
   pointer-events:none;
 }
 
-/* ===== 卡片：5 張 + 翻牌 ===== */
+/* ===== 卡片 ===== */
 .cards{
   position:relative;
   display:grid;
@@ -165,13 +164,15 @@ body{
     radial-gradient(240px 120px at 90% 0%, rgba(49,231,255,.14) 0%, rgba(49,231,255,0) 60%),
     rgba(10,16,38,.66);
   border-bottom: 1px solid rgba(255,255,255,.10);
+  color:#fff;
 }
+.cardTop *{ color:#fff; }
 .tag{ font-weight: 920; letter-spacing:.8px; }
 .rank{ color: rgba(255,255,255,.92); }
 
 .cardImg{
   width:100%;
-  aspect-ratio: 5 / 8;   /* ✅ 5:8 */
+  aspect-ratio: 5 / 8;
   object-fit: cover;
   display:block;
   background: rgba(255,255,255,.04);
@@ -181,7 +182,9 @@ body{
   padding: 10px 10px 12px;
   background: rgba(10,16,38,.66);
   border-top: 1px solid rgba(255,255,255,.10);
+  color:#fff;
 }
+.cardBottom *{ color:#fff; }
 .hint{ color: rgba(255,255,255,.78); font-size: 13px; }
 .chip{
   padding: 6px 10px;
@@ -193,7 +196,7 @@ body{
   letter-spacing:.6px;
 }
 
-/* 反面 */
+/* 反面（✅ 強制白字，解決你那個黑字問題） */
 .cardBack{
   position:absolute; inset:0;
   transform: rotateY(180deg);
@@ -204,15 +207,22 @@ body{
     radial-gradient(420px 220px at 20% 70%, rgba(124,255,178,.16) 0%, rgba(124,255,178,0) 60%),
     radial-gradient(420px 220px at 80% 70%, rgba(49,231,255,.12) 0%, rgba(49,231,255,0) 60%),
     rgba(10,16,38,.78);
+  color:#fff;
 }
+.cardBack, .cardBack *{ color:#fff !important; }
+
 .backBadge{
   padding: 8px 12px; border-radius: 999px;
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.18);
   font-weight: 900; letter-spacing:.6px;
 }
-.backTitle{ font-size: 16px; font-weight: 920; }
-.backSub{ font-size: 12px; color: rgba(255,255,255,.72); }
+.backTitle{
+  font-size: 16px;
+  font-weight: 920;
+  text-shadow: 0 10px 22px rgba(0,0,0,.45);
+}
+.backSub{ font-size: 12px; color: rgba(255,255,255,.72) !important; }
 .backSpark{
   width: 120px; height: 120px; border-radius: 999px;
   background: conic-gradient(from 0deg, var(--mint), var(--mint2), var(--pink), var(--gold), var(--mint));
@@ -222,19 +232,7 @@ body{
 }
 @keyframes spin{ to{ transform: rotate(360deg); } }
 
-.footerNote{
-  display:flex; gap:10px; align-items:center;
-  color: rgba(255,255,255,.78);
-  padding: 6px 12px 8px;
-  font-size: 13px;
-}
-.dot{
-  width:10px;height:10px;border-radius:50%;
-  background: linear-gradient(180deg, var(--mint), var(--mint2));
-  box-shadow: 0 10px 20px rgba(124,255,178,.18);
-}
-
-/* ===== Modal（變色只在祝福 msgBubble） ===== */
+/* ===== Modal（變色只在祝福區塊） ===== */
 .modal{ position: fixed; inset: 0; display:none; align-items:center; justify-content:center; z-index: 50; }
 .modal[aria-hidden="false"]{ display:flex; }
 .modalOverlay{ position:absolute; inset:0; background: rgba(0,0,0,.58); backdrop-filter: blur(7px); }
@@ -284,7 +282,6 @@ body{
 }
 .navBtn:hover{ background: rgba(255,255,255,.10); }
 
-/* ✅ 祝福區塊（變色邊框只在這） */
 .msgBubble{
   border-radius: 18px;
   background: rgba(255,255,255,.06);
@@ -321,16 +318,9 @@ body{
   color: rgba(255,255,255,.86);
   font-weight: 820;
 }
-.metaRow{ display:flex; gap:8px; margin-top: 12px; flex-wrap:wrap; }
-.chip2{
-  display:inline-flex;
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.05);
-  color: rgba(255,255,255,.78);
-  font-size: 12px;
-}
+
+/* ✅ 拿掉你說的 #card01 / message03 那串：整段不顯示 */
+.metaRow{ display:none !important; }
 
 .modalActions{
   display:flex; gap:10px;
