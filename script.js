@@ -266,18 +266,15 @@ let confettiStartAt = 0;
 
 function resizeConfettiCanvas() {
   if (!confettiCanvas || !confettiCtx) return;
-  const box = confettiCanvas.parentElement;
-  if (!box) return;
-
-  const rect = box.getBoundingClientRect();
-  // console.log("confetti rect:", rect.width, rect.height); 
 
   const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const w = window.innerWidth;
+  const h = window.innerHeight;
 
-  confettiCanvas.width = Math.floor(rect.width * dpr);
-  confettiCanvas.height = Math.floor(rect.height * dpr);
-  confettiCanvas.style.width = rect.width + "px";
-  confettiCanvas.style.height = rect.height + "px";
+  confettiCanvas.width = Math.floor(w * dpr);
+  confettiCanvas.height = Math.floor(h * dpr);
+  confettiCanvas.style.width = w + "px";
+  confettiCanvas.style.height = h + "px";
 
   confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
@@ -285,8 +282,8 @@ function resizeConfettiCanvas() {
 function spawnConfettiBurst() {
   if (!confettiCanvas) return;
 
-  const w = confettiCanvas.clientWidth;
-  const h = confettiCanvas.clientHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
 
   const originX = w * 0.5;
   const originY = h * 0.95;
