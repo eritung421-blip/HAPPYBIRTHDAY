@@ -1,4 +1,3 @@
-// 每句祝福都能各自設定 From（13 組）
 const MESSAGES = [
   { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
   { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
@@ -280,9 +279,10 @@ function resizeConfettiCanvas() {
   if (!confettiCanvas || !confettiCtx) return;
   const box = confettiCanvas.parentElement;
   if (!box) return;
-  console.log("confetti rect:", rect.width, rect.height);
 
-  const rect = box.getBoundingClientRect();
+  const rect = box.getBoundingClientRect(); 
+  console.log("confetti rect:", rect.width, rect.height); 
+
   const dpr = Math.max(1, window.devicePixelRatio || 1);
 
   confettiCanvas.width = Math.floor(rect.width * dpr);
@@ -299,7 +299,6 @@ function spawnConfettiBurst() {
   const w = confettiCanvas.clientWidth;
   const h = confettiCanvas.clientHeight;
 
-  // 噴發點：底部中央（你也可改成左右兩側同時噴）
   const originX = w * 0.5;
   const originY = h * 0.95;
 
@@ -322,7 +321,6 @@ function spawnConfettiBurst() {
       vr: (Math.random() * 0.25 - 0.125),
       life: 180 + Math.floor(Math.random() * 90),
       t: 0,
-      // 不指定顏色：用 HSL 隨機（自帶繽紛）
       hue: Math.floor(Math.random() * 360),
       alpha: 0.95
     });
@@ -404,7 +402,6 @@ function openEntryPopup() {
 
   entryPopup.setAttribute("aria-hidden", "false");
 
-  // ✅ 等下一幀，popup 已經有尺寸了，再 resize + 噴彩帶
   requestAnimationFrame(() => {
     resizeConfettiCanvas();
     startConfetti();
