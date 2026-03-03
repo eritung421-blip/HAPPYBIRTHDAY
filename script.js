@@ -18,13 +18,19 @@ const MESSAGES = [
 // ===== DOM =====
 const modal = document.getElementById("modal");
 const msgText = document.getElementById("msgText");
+const fromLine = document.getElementById("fromLine");
 const pickedCardChip = document.getElementById("pickedCardChip");
 const pickedMsgChip = document.getElementById("pickedMsgChip");
+
 const btnRandom = document.getElementById("btnRandom");
 const btnCopy = document.getElementById("btnCopy");
 const btnPrev = document.getElementById("btnPrev");
 const btnNext = document.getElementById("btnNext");
 
+const fromInput = document.getElementById("fromInput");
+const fromClear = document.getElementById("fromClear");
+
+// ===== 狀態 =====
 let currentCard = null;
 let currentMsgIndex = 0;
 
@@ -38,10 +44,19 @@ function pickMessageIndexNoRepeat() {
   return idx;
 }
 
+function getFromText() {
+  const v = (fromInput?.value || "").trim();
+  return v ? `From：${v}` : "";
+}
+
 function renderMessage() {
   msgText.textContent = MESSAGES[currentMsgIndex];
   pickedCardChip.textContent = `Card #${currentCard ?? "?"}`;
   pickedMsgChip.textContent = `Message #${String(currentMsgIndex + 1).padStart(2, "0")} / 13`;
+
+  const f = getFromText();
+  fromLine.textContent = f ? f : "From：（未署名）";
+  fromLine.style.opacity = f ? "1" : ".75";
 }
 
 function openModal(cardNo, msgIndex) {
@@ -58,13 +73,13 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
-// 卡片點擊：開彈窗 + 隨機一句
-document.querySelectorAll(".card").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const cardNo = btn.dataset.card;
-    const idx = pickMessageIndexNoRepeat();
-    openModal(cardNo, idx);
-  });
+// 署名即時更新（彈窗開著時也會同步）
+fromInput?.addEventListener("input", () => {
+  if (modal.getAttribute("aria-hidden") === "false") renderMessage();
+});
+fromClear?.addEventListener("click", () => {
+  fromInput.value = "";
+  if (modal.getAttribute("aria-hidden") === "false") renderMessage();
 });
 
 // 關閉：遮罩或 X
@@ -90,9 +105,12 @@ btnRandom.addEventListener("click", () => {
   renderMessage();
 });
 
-// 複製
+// 複製（會帶 From）
 btnCopy.addEventListener("click", async () => {
-  const text = msgText.textContent || "";
+  const main = msgText.textContent || "";
+  const f = getFromText();
+  const text = f ? `${main}\n${f}` : main;
+
   try {
     await navigator.clipboard.writeText(text);
     btnCopy.textContent = "已複製 ✅";
@@ -106,14 +124,44 @@ btnCopy.addEventListener("click", async () => {
 // 鍵盤支援
 window.addEventListener("keydown", (e) => {
   const opened = modal.getAttribute("aria-hidden") === "false";
-  if (!opened) return;
-
-  if (e.key === "Escape") closeModal();
-  if (e.key === "ArrowLeft") prevMsg();
-  if (e.key === "ArrowRight") nextMsg();
+  if (opened) {
+    if (e.key === "Escape") closeModal();
+    if (e.key === "ArrowLeft") prevMsg();
+    if (e.key === "ArrowRight") nextMsg();
+  }
 });
 
-// ===== 流星雨 Canvas =====
+// ===== 卡片：翻牌後才開彈窗 =====
+document.querySelectorAll(".card").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (btn.disabled) return;
+
+    // 先鎖住，避免連點把宇宙打結
+    btn.disabled = true;
+
+    const cardNo = btn.dataset.card;
+    const msgIndex = pickMessageIndexNoRepeat();
+
+    // 開始翻牌
+    btn.classList.add("is-flipping");
+
+    // 翻牌時間（對齊 CSS transition 0.72s）
+    const FLIP_MS = 720;
+
+    // 翻完再跳祝福
+    setTimeout(() => {
+      openModal(cardNo, msgIndex);
+
+      // 小延遲後翻回來，並解鎖
+      setTimeout(() => {
+        btn.classList.remove("is-flipping");
+        btn.disabled = false;
+      }, 260);
+    }, FLIP_MS);
+  });
+});
+
+// ===== 流星雨 Canvas（沿用）=====
 const canvas = document.getElementById("meteorCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -133,13 +181,12 @@ function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  // 從右上方偏移進場，往左下飛（比較有漫畫感）
   const x = w + Math.random() * w * 0.2;
   const y = Math.random() * h * 0.35;
 
   const len = 120 + Math.random() * 160;
   const speed = 8 + Math.random() * 10;
-  const angle = Math.PI * (0.70 + Math.random() * 0.08); // 斜下
+  const angle = Math.PI * (0.70 + Math.random() * 0.08);
   const vx = Math.cos(angle) * speed;
   const vy = Math.sin(angle) * speed;
 
@@ -149,12 +196,10 @@ function spawnMeteor() {
   meteors.push({ x, y, vx, vy, len, life, width, t: 0 });
 }
 
-// 控制密度：間歇式流星雨
 let tick = 0;
 function loop() {
   tick++;
 
-  // 低頻常駐 + 偶爾爆一小波
   if (Math.random() < 0.04) spawnMeteor();
   if (tick % 240 === 0) {
     const burst = 6 + Math.floor(Math.random() * 6);
