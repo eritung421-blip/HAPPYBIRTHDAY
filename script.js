@@ -1,18 +1,19 @@
-// ===== 祝福訊息（13）=====
+// ✅ 每句祝福都能各自設定 From（13 組）
+// 你只要改這裡的 from 就好：可以是人名、部門、小編、宇宙司令部…隨你玩
 const MESSAGES = [
-  "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀",
-  "願你每個願望都像任務指令：收到、執行、成功✅",
-  "祝你今年：睡飽、吃好、心情穩定（像基地系統一樣）",
-  "願你被世界溫柔對待，也被自己好好照顧🤍",
-  "今天你最大：想吃蛋糕就吃兩塊，這是軍令😎",
-  "願你的人生永遠有帥氣進場特效：閃亮到發光💫",
-  "祝你今年做什麼都順，連排隊都遇到快線",
-  "願你遇到的都是好事，壞事都自動略過（skip）",
-  "生日快樂！願你每天都能笑到眼睛眯成一條線😆",
-  "祝你今年：靈感爆棚、能量爆表、壓力爆掉（掰）",
-  "願你一路開掛，但還是保持可愛（重點）",
-  "願你每一次努力都被看見，每一次溫柔都被回應🌷",
-  "祝你今年：喜歡的都買得起，不喜歡的都放得下🫶"
+  { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
+  { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
+  { text: "祝你今年：睡飽、吃好、心情穩定（像基地系統一樣）", from: "值星官" },
+  { text: "願你被世界溫柔對待，也被自己好好照顧🤍", from: "溫柔派代表" },
+  { text: "今天你最大：想吃蛋糕就吃兩塊，這是軍令😎", from: "甜點軍法處" },
+  { text: "願你的人生永遠有帥氣進場特效：閃亮到發光💫", from: "舞台組" },
+  { text: "祝你今年做什麼都順，連排隊都遇到快線", from: "時間管理部" },
+  { text: "願你遇到的都是好事，壞事都自動略過（skip）", from: "系統管理員" },
+  { text: "生日快樂！願你每天都能笑到眼睛眯成一條線😆", from: "快樂供應商" },
+  { text: "祝你今年：靈感爆棚、能量爆表、壓力爆掉（掰）", from: "能量補給站" },
+  { text: "願你一路開掛，但還是保持可愛（重點）", from: "可愛稽查隊" },
+  { text: "願你每一次努力都被看見，每一次溫柔都被回應🌷", from: "你身邊的人" },
+  { text: "祝你今年：喜歡的都買得起，不喜歡的都放得下🫶", from: "理財&放下小組" }
 ];
 
 // ===== DOM =====
@@ -27,14 +28,11 @@ const btnCopy = document.getElementById("btnCopy");
 const btnPrev = document.getElementById("btnPrev");
 const btnNext = document.getElementById("btnNext");
 
-const fromInput = document.getElementById("fromInput");
-const fromClear = document.getElementById("fromClear");
-
 // ===== 狀態 =====
 let currentCard = null;
 let currentMsgIndex = 0;
 
-// 避免連續同一句（用於隨機）
+// 避免連續抽到同一句（隨機用）
 let lastMsgIndex = -1;
 function pickMessageIndexNoRepeat() {
   if (MESSAGES.length <= 1) return 0;
@@ -44,19 +42,13 @@ function pickMessageIndexNoRepeat() {
   return idx;
 }
 
-function getFromText() {
-  const v = (fromInput?.value || "").trim();
-  return v ? `From：${v}` : "";
-}
-
 function renderMessage() {
-  msgText.textContent = MESSAGES[currentMsgIndex];
+  const m = MESSAGES[currentMsgIndex];
+  msgText.textContent = m.text;
+  fromLine.textContent = m.from ? `From：${m.from}` : "From：（未署名）";
+
   pickedCardChip.textContent = `Card #${currentCard ?? "?"}`;
   pickedMsgChip.textContent = `Message #${String(currentMsgIndex + 1).padStart(2, "0")} / 13`;
-
-  const f = getFromText();
-  fromLine.textContent = f ? f : "From：（未署名）";
-  fromLine.style.opacity = f ? "1" : ".75";
 }
 
 function openModal(cardNo, msgIndex) {
@@ -72,15 +64,6 @@ function closeModal() {
   modal.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
 }
-
-// 署名即時更新（彈窗開著時也會同步）
-fromInput?.addEventListener("input", () => {
-  if (modal.getAttribute("aria-hidden") === "false") renderMessage();
-});
-fromClear?.addEventListener("click", () => {
-  fromInput.value = "";
-  if (modal.getAttribute("aria-hidden") === "false") renderMessage();
-});
 
 // 關閉：遮罩或 X
 modal.addEventListener("click", (e) => {
@@ -105,11 +88,10 @@ btnRandom.addEventListener("click", () => {
   renderMessage();
 });
 
-// 複製（會帶 From）
+// 複製（含 From）
 btnCopy.addEventListener("click", async () => {
-  const main = msgText.textContent || "";
-  const f = getFromText();
-  const text = f ? `${main}\n${f}` : main;
+  const m = MESSAGES[currentMsgIndex];
+  const text = m.from ? `${m.text}\nFrom：${m.from}` : m.text;
 
   try {
     await navigator.clipboard.writeText(text);
@@ -124,35 +106,28 @@ btnCopy.addEventListener("click", async () => {
 // 鍵盤支援
 window.addEventListener("keydown", (e) => {
   const opened = modal.getAttribute("aria-hidden") === "false";
-  if (opened) {
-    if (e.key === "Escape") closeModal();
-    if (e.key === "ArrowLeft") prevMsg();
-    if (e.key === "ArrowRight") nextMsg();
-  }
+  if (!opened) return;
+
+  if (e.key === "Escape") closeModal();
+  if (e.key === "ArrowLeft") prevMsg();
+  if (e.key === "ArrowRight") nextMsg();
 });
 
 // ===== 卡片：翻牌後才開彈窗 =====
 document.querySelectorAll(".card").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (btn.disabled) return;
-
-    // 先鎖住，避免連點把宇宙打結
     btn.disabled = true;
 
     const cardNo = btn.dataset.card;
     const msgIndex = pickMessageIndexNoRepeat();
 
-    // 開始翻牌
     btn.classList.add("is-flipping");
 
-    // 翻牌時間（對齊 CSS transition 0.72s）
-    const FLIP_MS = 720;
-
-    // 翻完再跳祝福
+    const FLIP_MS = 720; // 對齊 CSS transition
     setTimeout(() => {
       openModal(cardNo, msgIndex);
 
-      // 小延遲後翻回來，並解鎖
       setTimeout(() => {
         btn.classList.remove("is-flipping");
         btn.disabled = false;
@@ -161,7 +136,7 @@ document.querySelectorAll(".card").forEach((btn) => {
   });
 });
 
-// ===== 流星雨 Canvas（沿用）=====
+// ===== ✅ 流星雨 Canvas：分布更平均（不再偏右下）=====
 const canvas = document.getElementById("meteorCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -177,21 +152,40 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 const meteors = [];
+
+// 讓流星從「上方/左右邊」平均進場
 function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  const x = w + Math.random() * w * 0.2;
-  const y = Math.random() * h * 0.35;
+  // 三種入口：TOP / LEFT / RIGHT（平均選）
+  const entry = Math.floor(Math.random() * 3);
 
-  const len = 120 + Math.random() * 160;
-  const speed = 8 + Math.random() * 10;
-  const angle = Math.PI * (0.70 + Math.random() * 0.08);
+  let x, y, angle;
+  const speed = 7 + Math.random() * 9;
+  const len = 110 + Math.random() * 180;
+  const life = 45 + Math.random() * 35;
+  const width = 1.1 + Math.random() * 1.8;
+
+  if (entry === 0) {
+    // TOP：整個寬度平均
+    x = Math.random() * w;
+    y = -40 - Math.random() * 120;
+    angle = (Math.PI / 180) * (110 + Math.random() * 40); // 往左下~右下
+  } else if (entry === 1) {
+    // LEFT
+    x = -60 - Math.random() * 120;
+    y = Math.random() * h;
+    angle = (Math.PI / 180) * (20 + Math.random() * 35); // 往右下
+  } else {
+    // RIGHT
+    x = w + 60 + Math.random() * 120;
+    y = Math.random() * h;
+    angle = (Math.PI / 180) * (160 + Math.random() * 35); // 往左下
+  }
+
   const vx = Math.cos(angle) * speed;
   const vy = Math.sin(angle) * speed;
-
-  const life = 40 + Math.random() * 30;
-  const width = 1.2 + Math.random() * 1.8;
 
   meteors.push({ x, y, vx, vy, len, life, width, t: 0 });
 }
@@ -200,9 +194,10 @@ let tick = 0;
 function loop() {
   tick++;
 
-  if (Math.random() < 0.04) spawnMeteor();
-  if (tick % 240 === 0) {
-    const burst = 6 + Math.floor(Math.random() * 6);
+  // 常駐小雨 + 偶爾小爆發（但位置會平均）
+  if (Math.random() < 0.035) spawnMeteor();
+  if (tick % 260 === 0) {
+    const burst = 5 + Math.floor(Math.random() * 6);
     for (let i = 0; i < burst; i++) setTimeout(spawnMeteor, i * 120);
   }
 
@@ -215,6 +210,7 @@ function loop() {
     m.y += m.vy;
 
     const alpha = Math.max(0, 1 - m.t / m.life);
+
     const x2 = m.x - m.vx * (m.len / 10);
     const y2 = m.y - m.vy * (m.len / 10);
 
@@ -231,7 +227,7 @@ function loop() {
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
-    if (m.t > m.life || m.x < -300 || m.y > window.innerHeight + 300) {
+    if (m.t > m.life || m.x < -400 || m.x > window.innerWidth + 400 || m.y > window.innerHeight + 400) {
       meteors.splice(i, 1);
     }
   }
