@@ -1,9 +1,16 @@
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #050714; /* 你的 --bg0 */
-  overflow-x: hidden;
+html, body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#050714; 
+  overflow:hidden;
+}
+
+.wrap{
+  height: var(--real-vh, 100vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; 
 }
 
 body{
@@ -11,20 +18,10 @@ body{
   overflow-x: hidden;
 }
 
-body{
-  position: relative;
-  min-height: var(--real-vh, 100vh);
+body, .wrap, button, a {
+  touch-action: manipulation;
 }
 
-body{
-  overflow: hidden; 
-}
-
-.wrap{
-  height: var(--real-vh, 100vh);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
 
 :root{
   --bg0:#050714;
