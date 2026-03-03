@@ -7,6 +7,11 @@ body {
   min-height: 100dvh; /* iOS 16+ 穩定 */
 }
 
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
 :root{
   --bg0:#050714;
   --mint:#7CFFB2;
