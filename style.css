@@ -6,6 +6,26 @@ html, body {
   overflow-x: hidden;
 }
 
+body{
+  overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+body{
+  position: relative;
+  min-height: var(--real-vh, 100vh);
+}
+
+body{
+  overflow: hidden; 
+}
+
+.wrap{
+  height: var(--real-vh, 100vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 :root{
   --bg0:#050714;
   --mint:#7CFFB2;
@@ -36,8 +56,15 @@ body{
 }
 
 /* ===== 背景 ===== */
-.bg{ position:fixed; inset:0; z-index:-1; }
-.nebula{
+.bg{
+  position: fixed;
+  left: 0; top: 0;
+  width: 100%;
+  height: var(--real-vh, 100vh);
+  z-index: -1;
+  overflow: hidden;
+  background: #050714; /* 再保險一次 */
+}.nebula{
   position:absolute; inset:-60px;
   background:
     radial-gradient(900px 500px at 20% 20%, rgba(124,255,178,.16) 0%, rgba(124,255,178,0) 60%),
