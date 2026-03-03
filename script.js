@@ -146,10 +146,7 @@ resizeCanvas();
 
 const meteors = [];
 
-/**
- * ✅ 統一方向：固定「往右下」斜飛
- * 入口：沿著畫面上邊 + 左邊平均灑點進來（分布會很平均）
- */
+
 function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -183,7 +180,6 @@ let tick = 0;
 function loop() {
   tick++;
 
-  // 常駐小雨 + 偶爾小爆發
   if (Math.random() < 0.035) spawnMeteor();
   if (tick % 260 === 0) {
     const burst = 5 + Math.floor(Math.random() * 6);
@@ -246,7 +242,6 @@ function closeEntryPopup() {
 // 點 X 關閉
 popupCloseBtn?.addEventListener("click", closeEntryPopup);
 
-// （可選）點黑色遮罩也關閉：想要就保留，不想要就刪掉
 entryPopup?.addEventListener("click", (e) => {
   if (e.target?.classList?.contains("popupOverlay")) closeEntryPopup();
 });
@@ -260,8 +255,7 @@ window.addEventListener("load", () => {
 const confettiCanvas = document.getElementById("confettiCanvas");
 const confettiCtx = confettiCanvas?.getContext("2d");
 
-// ✅ 彩帶色盤：少而精（跟你的宇宙色系一致）
-const CONFETTI_PALETTE = [160, 190, 320];
+const CONFETTI_PALETTE = [160, 190, 320, 45];
 
 let confettiRAF = null;
 let confettiActiveUntil = 0;
@@ -291,7 +285,7 @@ function spawnConfettiBurst(count = 90) {
 
   // ✅ 從畫面正中央「往四周散開」
   const originX = w * 0.5;
-  const originY = h * 0.5;
+  const originY = h * 0.4;
 
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2; // 0~360°
