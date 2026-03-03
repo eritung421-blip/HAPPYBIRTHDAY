@@ -11,6 +11,7 @@ html, body{
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain; 
+  position: relative; z-index: 1;
 }
 
 body{
