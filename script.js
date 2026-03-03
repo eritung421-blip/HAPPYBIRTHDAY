@@ -265,3 +265,151 @@ entryPopup?.addEventListener("click", (e) => {
 window.addEventListener("load", () => {
   openEntryPopup();
 });
+
+// ===== Confetti（在 Popup 圖片後面）=====
+const confettiCanvas = document.getElementById("confettiCanvas");
+const confettiCtx = confettiCanvas?.getContext("2d");
+
+let confettiRAF = null;
+let confettiPieces = [];
+let confettiStartAt = 0;
+
+function resizeConfettiCanvas() {
+  if (!confettiCanvas || !confettiCtx) return;
+  const box = confettiCanvas.parentElement;
+  if (!box) return;
+
+  const rect = box.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  confettiCanvas.width = Math.floor(rect.width * dpr);
+  confettiCanvas.height = Math.floor(rect.height * dpr);
+  confettiCanvas.style.width = rect.width + "px";
+  confettiCanvas.style.height = rect.height + "px";
+
+  confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function spawnConfettiBurst() {
+  if (!confettiCanvas) return;
+
+  const w = confettiCanvas.clientWidth;
+  const h = confettiCanvas.clientHeight;
+
+  // 噴發點：底部中央（你也可改成左右兩側同時噴）
+  const originX = w * 0.5;
+  const originY = h * 0.95;
+
+  const count = 140; // 彩帶數量
+  confettiPieces = [];
+
+  for (let i = 0; i < count; i++) {
+    const angle = (-Math.PI / 2) + (Math.random() * 1.0 - 0.5);  // 大致往上散開
+    const speed = 5 + Math.random() * 9;
+
+    confettiPieces.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      g: 0.18 + Math.random() * 0.12,       // 重力
+      w: 6 + Math.random() * 6,
+      h: 10 + Math.random() * 10,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() * 0.25 - 0.125),
+      life: 180 + Math.floor(Math.random() * 90),
+      t: 0,
+      // 不指定顏色：用 HSL 隨機（自帶繽紛）
+      hue: Math.floor(Math.random() * 360),
+      alpha: 0.95
+    });
+  }
+
+  confettiStartAt = performance.now();
+}
+
+function drawConfettiFrame(now) {
+  if (!confettiCtx || !confettiCanvas) return;
+
+  const w = confettiCanvas.clientWidth;
+  const h = confettiCanvas.clientHeight;
+
+  confettiCtx.clearRect(0, 0, w, h);
+
+  // 讓彩帶逐漸淡出（大概 2.5 秒）
+  const elapsed = now - confettiStartAt;
+  const fade = Math.max(0, 1 - elapsed / 2500);
+
+  for (let i = confettiPieces.length - 1; i >= 0; i--) {
+    const p = confettiPieces[i];
+    p.t++;
+
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.g;
+    p.rot += p.vr;
+
+    const lifeAlpha = Math.max(0, 1 - p.t / p.life) * fade * p.alpha;
+
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rot);
+
+    confettiCtx.fillStyle = `hsla(${p.hue}, 95%, 62%, ${lifeAlpha})`;
+    confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+
+    confettiCtx.restore();
+
+    // 超出或生命結束就移除
+    if (p.t > p.life || p.y > h + 80 || p.x < -80 || p.x > w + 80) {
+      confettiPieces.splice(i, 1);
+    }
+  }
+
+  // 還有彩帶就繼續
+  if (confettiPieces.length > 0) {
+    confettiRAF = requestAnimationFrame(drawConfettiFrame);
+  } else {
+    confettiCtx.clearRect(0, 0, w, h);
+    confettiRAF = null;
+  }
+}
+
+function startConfetti() {
+  if (!confettiCanvas || !confettiCtx) return;
+  resizeConfettiCanvas();
+  spawnConfettiBurst();
+  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  confettiRAF = requestAnimationFrame(drawConfettiFrame);
+}
+
+function stopConfetti() {
+  if (!confettiCanvas || !confettiCtx) return;
+  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  confettiRAF = null;
+  confettiPieces = [];
+  confettiCtx.clearRect(0, 0, confettiCanvas.clientWidth, confettiCanvas.clientHeight);
+}
+
+window.addEventListener("resize", () => {
+  // 若 popup 開著，跟著重算畫布
+  const opened = entryPopup?.getAttribute("aria-hidden") === "false";
+  if (opened) resizeConfettiCanvas();
+});
+
+// ✅ 把 confetti 掛到你的 popup 開/關流程：
+// 你原本 openEntryPopup() 裡加一行 startConfetti()
+// closeEntryPopup() 裡加一行 stopConfetti()
+
+// === 直接覆蓋/補強你的 open/close（如果你不想改原函式就照下面改） ===
+const _openEntryPopup = openEntryPopup;
+openEntryPopup = function () {
+  _openEntryPopup();
+  startConfetti();
+};
+
+const _closeEntryPopup = closeEntryPopup;
+closeEntryPopup = function () {
+  _closeEntryPopup();
+  stopConfetti();
+};
