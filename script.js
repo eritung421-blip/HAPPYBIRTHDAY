@@ -261,6 +261,7 @@ const confettiCanvas = document.getElementById("confettiCanvas");
 const confettiCtx = confettiCanvas?.getContext("2d");
 
 let confettiRAF = null;
+let confettiActiveUntil = 0;
 let confettiPieces = [];
 let confettiStartAt = 0;
 
@@ -279,53 +280,50 @@ function resizeConfettiCanvas() {
   confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-function spawnConfettiBurst() {
+function spawnConfettiWave(count = 220) {
   if (!confettiCanvas) return;
 
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  const originX = w * 0.5;
-  const originY = h * 0.95;
-
-  const count = 140; // 彩帶數量
-  confettiPieces = [];
-
   for (let i = 0; i < count; i++) {
-    const angle = (-Math.PI / 2) + (Math.random() * 1.0 - 0.5);  // 大致往上散開
-    const speed = 5 + Math.random() * 9;
+    // 讓彩帶「一進站就佈滿整個畫面」：從畫面上方到中段隨機生成
+    const x = Math.random() * w;
+    const y = -Math.random() * (h * 0.6);
+
+    const vx = (Math.random() - 0.5) * 1.6;      // 左右飄
+    const vy = 2.2 + Math.random() * 4.6;        // 下落速度
+    const g = 0.02 + Math.random() * 0.05;       // 重力
 
     confettiPieces.push({
-      x: originX,
-      y: originY,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      g: 0.18 + Math.random() * 0.12,       // 重力
-      w: 6 + Math.random() * 6,
-      h: 10 + Math.random() * 10,
-      rot: Math.random() * Math.PI,
-      vr: (Math.random() * 0.25 - 0.125),
-      life: 180 + Math.floor(Math.random() * 90),
+      x, y, vx, vy, g,
+      w: 6 + Math.random() * 8,
+      h: 10 + Math.random() * 14,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.22,
+      life: 260 + Math.floor(Math.random() * 140),
       t: 0,
       hue: Math.floor(Math.random() * 360),
       alpha: 0.95
     });
   }
-
-  confettiStartAt = performance.now();
 }
 
 function drawConfettiFrame(now) {
   if (!confettiCtx || !confettiCanvas) return;
 
-  const w = confettiCanvas.clientWidth;
-  const h = confettiCanvas.clientHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
 
   confettiCtx.clearRect(0, 0, w, h);
 
-  // 讓彩帶逐漸淡出（大概 2.5 秒）
-  const elapsed = now - confettiStartAt;
-  const fade = Math.max(0, 1 - elapsed / 2500);
+  // 在前幾秒持續補貨，讓畫面保持「一直有彩帶」
+  if (now < confettiActiveUntil) {
+    // 避免太多顆卡住：上限 520
+    if (confettiPieces.length < 520) {
+      spawnConfettiWave(10);
+    }
+  }
 
   for (let i = confettiPieces.length - 1; i >= 0; i--) {
     const p = confettiPieces[i];
@@ -336,7 +334,7 @@ function drawConfettiFrame(now) {
     p.vy += p.g;
     p.rot += p.vr;
 
-    const lifeAlpha = Math.max(0, 1 - p.t / p.life) * fade * p.alpha;
+    const lifeAlpha = Math.max(0, 1 - p.t / p.life) * p.alpha;
 
     confettiCtx.save();
     confettiCtx.translate(p.x, p.y);
@@ -347,14 +345,14 @@ function drawConfettiFrame(now) {
 
     confettiCtx.restore();
 
-    // 超出或生命結束就移除
-    if (p.t > p.life || p.y > h + 80 || p.x < -80 || p.x > w + 80) {
+    // 清掉離場的
+    if (p.t > p.life || p.y > h + 120 || p.x < -120 || p.x > w + 120) {
       confettiPieces.splice(i, 1);
     }
   }
 
-  // 還有彩帶就繼續
-  if (confettiPieces.length > 0) {
+  // 還有彩帶或仍在補貨期就繼續
+  if (confettiPieces.length > 0 || now < confettiActiveUntil) {
     confettiRAF = requestAnimationFrame(drawConfettiFrame);
   } else {
     confettiCtx.clearRect(0, 0, w, h);
@@ -364,8 +362,16 @@ function drawConfettiFrame(now) {
 
 function startConfetti() {
   if (!confettiCanvas || !confettiCtx) return;
+
   resizeConfettiCanvas();
-  spawnConfettiBurst();
+
+  // 先鋪一波，立刻滿版
+  confettiPieces = [];
+  spawnConfettiWave(260);
+
+  // 接著 4.8 秒內持續補貨，直到 popup 自動關閉差不多時間
+  confettiActiveUntil = performance.now() + 4800;
+
   if (confettiRAF) cancelAnimationFrame(confettiRAF);
   confettiRAF = requestAnimationFrame(drawConfettiFrame);
 }
@@ -374,8 +380,9 @@ function stopConfetti() {
   if (!confettiCanvas || !confettiCtx) return;
   if (confettiRAF) cancelAnimationFrame(confettiRAF);
   confettiRAF = null;
+  confettiActiveUntil = 0;
   confettiPieces = [];
-  confettiCtx.clearRect(0, 0, confettiCanvas.clientWidth, confettiCanvas.clientHeight);
+  confettiCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
 window.addEventListener("resize", () => {

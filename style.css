@@ -441,8 +441,3 @@ nebula{
 .popupClose:hover{
   background: rgba(0,0,0,.5);
 }
-
-
-/* （已改為：彩帶在遮罩上、popupBox 下；避免被圖片整張蓋掉） */
-.popupImg{ position: relative; z-index: 2; }
-.popupClose{ z-index: 3; }
