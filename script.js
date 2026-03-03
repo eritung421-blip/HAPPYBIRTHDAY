@@ -1,5 +1,4 @@
-// ✅ 每句祝福都能各自設定 From（13 組）
-// 你只要改這裡的 from 就好：可以是人名、部門、小編、宇宙司令部…隨你玩
+// 每句祝福都能各自設定 From（13 組）
 const MESSAGES = [
   { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
   { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
@@ -20,8 +19,6 @@ const MESSAGES = [
 const modal = document.getElementById("modal");
 const msgText = document.getElementById("msgText");
 const fromLine = document.getElementById("fromLine");
-const pickedCardChip = document.getElementById("pickedCardChip");
-const pickedMsgChip = document.getElementById("pickedMsgChip");
 
 const btnRandom = document.getElementById("btnRandom");
 const btnCopy = document.getElementById("btnCopy");
@@ -46,9 +43,6 @@ function renderMessage() {
   const m = MESSAGES[currentMsgIndex];
   msgText.textContent = m.text;
   fromLine.textContent = m.from ? `From：${m.from}` : "From：（未署名）";
-
-  pickedCardChip.textContent = `Card #${currentCard ?? "?"}`;
-  pickedMsgChip.textContent = `Message #${String(currentMsgIndex + 1).padStart(2, "0")} / 13`;
 }
 
 function openModal(cardNo, msgIndex) {
@@ -136,7 +130,7 @@ document.querySelectorAll(".card").forEach((btn) => {
   });
 });
 
-// ===== ✅ 流星雨 Canvas：分布更平均（不再偏右下）=====
+// ===== 流星雨 Canvas：方向統一 + 分布平均 =====
 const canvas = document.getElementById("meteorCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -153,37 +147,33 @@ resizeCanvas();
 
 const meteors = [];
 
-// 讓流星從「上方/左右邊」平均進場
+/**
+ * ✅ 統一方向：固定「往右下」斜飛
+ * 入口：沿著畫面上邊 + 左邊平均灑點進來（分布會很平均）
+ */
 function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  // 三種入口：TOP / LEFT / RIGHT（平均選）
-  const entry = Math.floor(Math.random() * 3);
+  // 入口只取 TOP 或 LEFT，平均選
+  const fromTop = Math.random() < 0.5;
 
-  let x, y, angle;
-  const speed = 7 + Math.random() * 9;
+  let x, y;
+  if (fromTop) {
+    x = Math.random() * w;
+    y = -60 - Math.random() * 120;
+  } else {
+    x = -60 - Math.random() * 120;
+    y = Math.random() * h;
+  }
+
   const len = 110 + Math.random() * 180;
+  const speed = 7 + Math.random() * 9;
   const life = 45 + Math.random() * 35;
   const width = 1.1 + Math.random() * 1.8;
 
-  if (entry === 0) {
-    // TOP：整個寬度平均
-    x = Math.random() * w;
-    y = -40 - Math.random() * 120;
-    angle = (Math.PI / 180) * (110 + Math.random() * 40); // 往左下~右下
-  } else if (entry === 1) {
-    // LEFT
-    x = -60 - Math.random() * 120;
-    y = Math.random() * h;
-    angle = (Math.PI / 180) * (20 + Math.random() * 35); // 往右下
-  } else {
-    // RIGHT
-    x = w + 60 + Math.random() * 120;
-    y = Math.random() * h;
-    angle = (Math.PI / 180) * (160 + Math.random() * 35); // 往左下
-  }
-
+  // 方向統一：往右下（角度在 35°~55°之間微幅飄）
+  const angle = (Math.PI / 180) * (35 + Math.random() * 20);
   const vx = Math.cos(angle) * speed;
   const vy = Math.sin(angle) * speed;
 
@@ -194,7 +184,7 @@ let tick = 0;
 function loop() {
   tick++;
 
-  // 常駐小雨 + 偶爾小爆發（但位置會平均）
+  // 常駐小雨 + 偶爾小爆發
   if (Math.random() < 0.035) spawnMeteor();
   if (tick % 260 === 0) {
     const burst = 5 + Math.floor(Math.random() * 6);
@@ -227,7 +217,7 @@ function loop() {
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
-    if (m.t > m.life || m.x < -400 || m.x > window.innerWidth + 400 || m.y > window.innerHeight + 400) {
+    if (m.t > m.life || m.x > window.innerWidth + 400 || m.y > window.innerHeight + 400) {
       meteors.splice(i, 1);
     }
   }
