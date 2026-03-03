@@ -260,6 +260,9 @@ window.addEventListener("load", () => {
 const confettiCanvas = document.getElementById("confettiCanvas");
 const confettiCtx = confettiCanvas?.getContext("2d");
 
+// ✅ 彩帶色盤：少而精（跟你的宇宙色系一致）
+const CONFETTI_PALETTE = [160, 190, 320];
+
 let confettiRAF = null;
 let confettiActiveUntil = 0;
 let confettiPieces = [];
@@ -280,31 +283,36 @@ function resizeConfettiCanvas() {
   confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-function spawnConfettiWave(count = 220) {
+function spawnConfettiBurst(count = 90) {
   if (!confettiCanvas) return;
 
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  for (let i = 0; i < count; i++) {
-    // 讓彩帶「一進站就佈滿整個畫面」：從畫面上方到中段隨機生成
-    const x = Math.random() * w;
-    const y = -Math.random() * (h * 0.6);
+  // ✅ 從畫面正中央「往四周散開」
+  const originX = w * 0.5;
+  const originY = h * 0.5;
 
-    const vx = (Math.random() - 0.5) * 1.6;      // 左右飄
-    const vy = 2.2 + Math.random() * 4.6;        // 下落速度
-    const g = 0.02 + Math.random() * 0.05;       // 重力
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2; // 0~360°
+    const speed = 2.8 + Math.random() * 4.2;  // 不要太爆
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed;
+
+    const g = 0.03 + Math.random() * 0.05; // 稍微往下墜
 
     confettiPieces.push({
-      x, y, vx, vy, g,
-      w: 6 + Math.random() * 8,
-      h: 10 + Math.random() * 14,
+      x: originX,
+      y: originY,
+      vx, vy, g,
+      w: 3 + Math.random() * 4,
+      h: 7 + Math.random() * 7,
       rot: Math.random() * Math.PI * 2,
-      vr: (Math.random() - 0.5) * 0.22,
-      life: 260 + Math.floor(Math.random() * 140),
+      vr: (Math.random() - 0.5) * 0.18,
+      life: 180 + Math.floor(Math.random() * 90),
       t: 0,
-      hue: Math.floor(Math.random() * 360),
-      alpha: 0.95
+      hue: CONFETTI_PALETTE[Math.floor(Math.random() * CONFETTI_PALETTE.length)],
+      alpha: 0.9
     });
   }
 }
@@ -317,11 +325,10 @@ function drawConfettiFrame(now) {
 
   confettiCtx.clearRect(0, 0, w, h);
 
-  // 在前幾秒持續補貨，讓畫面保持「一直有彩帶」
+  // ✅ 小補貨：讓畫面更順，但不會變成「密集瀑布」
   if (now < confettiActiveUntil) {
-    // 避免太多顆卡住：上限 520
-    if (confettiPieces.length < 520) {
-      spawnConfettiWave(10);
+    if (confettiPieces.length < 180 && now % 2 < 1) {
+      spawnConfettiBurst(4);
     }
   }
 
@@ -334,13 +341,17 @@ function drawConfettiFrame(now) {
     p.vy += p.g;
     p.rot += p.vr;
 
+    // ✅ 阻尼：飛一飛會慢下來，比較「高級」
+    p.vx *= 0.99;
+    p.vy *= 0.99;
+
     const lifeAlpha = Math.max(0, 1 - p.t / p.life) * p.alpha;
 
     confettiCtx.save();
     confettiCtx.translate(p.x, p.y);
     confettiCtx.rotate(p.rot);
 
-    confettiCtx.fillStyle = `hsla(${p.hue}, 95%, 62%, ${lifeAlpha})`;
+    confettiCtx.fillStyle = `hsla(${p.hue}, 85%, 62%, ${lifeAlpha})`;
     confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
 
     confettiCtx.restore();
@@ -365,12 +376,12 @@ function startConfetti() {
 
   resizeConfettiCanvas();
 
-  // 先鋪一波，立刻滿版
+  // ✅ 中央噴灑：不要太密、不要太花
   confettiPieces = [];
-  spawnConfettiWave(260);
+  spawnConfettiBurst(90);
 
-  // 接著 4.8 秒內持續補貨，直到 popup 自動關閉差不多時間
-  confettiActiveUntil = performance.now() + 4800;
+  // 小補貨 2.2 秒，讓視覺更滑順（但不會越來越多）
+  confettiActiveUntil = performance.now() + 2200;
 
   if (confettiRAF) cancelAnimationFrame(confettiRAF);
   confettiRAF = requestAnimationFrame(drawConfettiFrame);
