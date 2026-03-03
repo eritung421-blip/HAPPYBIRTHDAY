@@ -1,18 +1,31 @@
-const MESSAGES = [
-  { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
-  { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
-  { text: "祝你今年：睡飽、吃好、心情穩定（像基地系統一樣）", from: "值星官" },
-  { text: "願你被世界溫柔對待，也被自己好好照顧🤍", from: "溫柔派代表" },
-  { text: "今天你最大：想吃蛋糕就吃兩塊，這是軍令😎", from: "甜點軍法處" },
-  { text: "願你的人生永遠有帥氣進場特效：閃亮到發光💫", from: "舞台組" },
-  { text: "祝你今年做什麼都順，連排隊都遇到快線", from: "時間管理部" },
-  { text: "願你遇到的都是好事，壞事都自動略過（skip）", from: "系統管理員" },
-  { text: "生日快樂！願你每天都能笑到眼睛眯成一條線😆", from: "快樂供應商" },
-  { text: "祝你今年：靈感爆棚、能量爆表、壓力爆掉（掰）", from: "能量補給站" },
-  { text: "願你一路開掛，但還是保持可愛（重點）", from: "可愛稽查隊" },
-  { text: "願你每一次努力都被看見，每一次溫柔都被回應🌷", from: "你身邊的人" },
-  { text: "祝你今年：喜歡的都買得起，不喜歡的都放得下🫶", from: "理財&放下小組" }
-];
+// ✅ 每張卡片都有獨立祝福池（不共用）
+// 你只要改這裡的文字/署名即可：text 可用 \n 換行；from 會顯示成「From：…」
+const CARD_MESSAGES = {
+  1: [
+    { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
+    { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
+    { text: "祝你今年：睡飽、吃好、心情穩定（像基地系統一樣）", from: "值星官" },
+  ],
+  2: [
+    { text: "願你被世界溫柔對待，也被自己好好照顧🤍", from: "溫柔派代表" },
+    { text: "今天你最大：想吃蛋糕就吃兩塊，這是軍令😎", from: "甜點軍法處" },
+    { text: "願你的人生永遠有帥氣進場特效：閃亮到發光💫", from: "舞台組" },
+  ],
+  3: [
+    { text: "祝你今年做什麼都順，連排隊都遇到快線", from: "時間管理部" },
+    { text: "願你遇到的都是好事，壞事都自動略過（skip）", from: "系統管理員" },
+    { text: "生日快樂！願你每天都能笑到眼睛眯成一條線😆", from: "快樂供應商" },
+  ],
+  4: [
+    { text: "祝你今年：靈感爆棚、能量爆表、壓力爆掉（掰）", from: "能量補給站" },
+    { text: "願你一路開掛，但還是保持可愛（重點）", from: "可愛稽查隊" },
+  ],
+  5: [
+    { text: "願你每一次努力都被看見，每一次溫柔都被回應🌷", from: "你身邊的人" },
+    { text: "祝你今年：喜歡的都買得起，不喜歡的都放得下🫶", from: "理財&放下小組" },
+  ],
+};
+
 
 // ===== DOM =====
 const modal = document.getElementById("modal");
@@ -26,27 +39,51 @@ const btnNext = document.getElementById("btnNext");
 
 // ===== 狀態 =====
 let currentCard = null;
+let currentPool = [];
 let currentMsgIndex = 0;
 
-// 避免連續抽到同一句（隨機用）
-let lastMsgIndex = -1;
-function pickMessageIndexNoRepeat() {
-  if (MESSAGES.length <= 1) return 0;
-  let idx = Math.floor(Math.random() * MESSAGES.length);
-  if (idx === lastMsgIndex) idx = (idx + 1) % MESSAGES.length;
-  lastMsgIndex = idx;
+// 避免同一張卡連續抽到同一句
+const lastMsgIndexByCard = Object.create(null);
+
+function getPool(cardNo) {
+  return CARD_MESSAGES[Number(cardNo)] || [];
+}
+
+function pickMessageIndexNoRepeat(pool, cardNo) {
+  if (!pool || pool.length <= 1) return 0;
+
+  let idx = Math.floor(Math.random() * pool.length);
+  const last = lastMsgIndexByCard[cardNo];
+
+  if (typeof last === "number" && idx === last) idx = (idx + 1) % pool.length;
+  lastMsgIndexByCard[cardNo] = idx;
   return idx;
 }
 
 function renderMessage() {
-  const m = MESSAGES[currentMsgIndex];
-  msgText.textContent = m.text;
+  if (!currentPool || currentPool.length === 0) {
+    msgText.textContent = "（這張卡目前還沒放祝福🥲）";
+    fromLine.textContent = "From：（未署名）";
+    return;
+  }
+
+  const m = currentPool[currentMsgIndex];
+  // 支援換行：在 text 內寫 "\\n"（兩個字元：\ + n）
+  msgText.innerHTML = String(m.text ?? "").replace(/\n/g, "<br>");
   fromLine.textContent = m.from ? `From：${m.from}` : "From：（未署名）";
 }
 
 function openModal(cardNo, msgIndex) {
   currentCard = cardNo;
-  currentMsgIndex = msgIndex;
+  currentPool = getPool(cardNo);
+
+  if (!currentPool || currentPool.length === 0) {
+    currentMsgIndex = 0;
+  } else {
+    const safe = Number(msgIndex) || 0;
+    currentMsgIndex = ((safe % currentPool.length) + currentPool.length) % currentPool.length;
+  }
+
   renderMessage();
 
   modal.setAttribute("aria-hidden", "false");
@@ -65,11 +102,13 @@ modal.addEventListener("click", (e) => {
 
 // 左右切換
 function prevMsg() {
-  currentMsgIndex = (currentMsgIndex - 1 + MESSAGES.length) % MESSAGES.length;
+  if (!currentPool || currentPool.length === 0) return;
+  currentMsgIndex = (currentMsgIndex - 1 + currentPool.length) % currentPool.length;
   renderMessage();
 }
 function nextMsg() {
-  currentMsgIndex = (currentMsgIndex + 1) % MESSAGES.length;
+  if (!currentPool || currentPool.length === 0) return;
+  currentMsgIndex = (currentMsgIndex + 1) % currentPool.length;
   renderMessage();
 }
 btnPrev.addEventListener("click", prevMsg);
@@ -77,14 +116,18 @@ btnNext.addEventListener("click", nextMsg);
 
 // 隨機一則
 btnRandom.addEventListener("click", () => {
-  currentMsgIndex = pickMessageIndexNoRepeat();
+  if (!currentPool || currentPool.length === 0) return;
+  currentMsgIndex = pickMessageIndexNoRepeat(currentPool, currentCard);
   renderMessage();
 });
 
 // 複製（含 From）
 btnCopy.addEventListener("click", async () => {
-  const m = MESSAGES[currentMsgIndex];
-  const text = m.from ? `${m.text}\nFrom：${m.from}` : m.text;
+  if (!currentPool || currentPool.length === 0) return;
+
+  const m = currentPool[currentMsgIndex];
+  const text = m.from ? `${m.text}
+From：${m.from}` : String(m.text ?? "");
 
   try {
     await navigator.clipboard.writeText(text);
@@ -113,7 +156,8 @@ document.querySelectorAll(".card").forEach((btn) => {
     btn.disabled = true;
 
     const cardNo = btn.dataset.card;
-    const msgIndex = pickMessageIndexNoRepeat();
+    const pool = getPool(cardNo);
+    const msgIndex = pickMessageIndexNoRepeat(pool, cardNo);
 
     btn.classList.add("is-flipping");
 
@@ -342,7 +386,7 @@ function drawConfettiFrame(now) {
     confettiCtx.translate(p.x, p.y);
     confettiCtx.rotate(p.rot);
 
-    confettiCtx.fillStyle = `hsla(${p.hue}, ˙70%, 65%, ${lifeAlpha})`;
+    confettiCtx.fillStyle = `hsla(${p.hue}, 70%, 65%, ${lifeAlpha})`;
     confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
 
     confettiCtx.restore();
