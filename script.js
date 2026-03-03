@@ -283,7 +283,6 @@ function spawnConfettiBurst(count = 90) {
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  // ✅ 從畫面正中央「往四周散開」
   const originX = w * 0.5;
   const originY = h * 0.4;
 
@@ -319,7 +318,6 @@ function drawConfettiFrame(now) {
 
   confettiCtx.clearRect(0, 0, w, h);
 
-  // ✅ 小補貨：讓畫面更順，但不會變成「密集瀑布」
   if (now < confettiActiveUntil) {
     if (confettiPieces.length < 180 && now % 2 < 1) {
       spawnConfettiBurst(4);
@@ -335,7 +333,6 @@ function drawConfettiFrame(now) {
     p.vy += p.g;
     p.rot += p.vr;
 
-    // ✅ 阻尼：飛一飛會慢下來，比較「高級」
     p.vx *= 0.99;
     p.vy *= 0.99;
 
@@ -345,7 +342,7 @@ function drawConfettiFrame(now) {
     confettiCtx.translate(p.x, p.y);
     confettiCtx.rotate(p.rot);
 
-    confettiCtx.fillStyle = `hsla(${p.hue}, 85%, 62%, ${lifeAlpha})`;
+    confettiCtx.fillStyle = `hsla(${p.hue}, ˙70%, 65%, ${lifeAlpha})`;
     confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
 
     confettiCtx.restore();
