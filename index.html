@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Birthday Galaxy Party ✨</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- 背景（宇宙/地球光暈） -->
+  <div class="bg">
+    <div class="bgGlow"></div>
+    <div class="stars" aria-hidden="true"></div>
+    <div class="confetti" aria-hidden="true"></div>
+  </div>
+
+  <main class="wrap">
+    <header class="hero">
+      <div class="badge">🎂 生日限定 · 宇宙紅毯模式</div>
+      <h1 class="title">
+        今天你是主角<span class="spark">✨</span>
+      </h1>
+      <p class="subtitle">點一張卡片，領取你的祝福（抽到哪句就算命運配對🥹）</p>
+    </header>
+
+    <!-- 舞台 / 紅毯 -->
+    <section class="stage" aria-label="Birthday stage">
+      <div class="spotlight" aria-hidden="true"></div>
+      <div class="runway" aria-hidden="true"></div>
+
+      <!-- 卡片區 -->
+      <div class="cards" role="list" aria-label="Birthday cards">
+        <button class="card" type="button" role="listitem" data-card="1" aria-label="生日卡片 1">
+          <div class="cardInner">
+            <div class="cardFront">
+              <div class="cardLabel">CARD 01</div>
+              <img class="cardImg" src="./assets/card1.jpg" alt="卡片圖片 1" />
+              <div class="tapHint">點我拆封 🎁</div>
+            </div>
+          </div>
+        </button>
+
+        <button class="card" type="button" role="listitem" data-card="2" aria-label="生日卡片 2">
+          <div class="cardInner">
+            <div class="cardFront">
+              <div class="cardLabel">CARD 02</div>
+              <img class="cardImg" src="./assets/card2.jpg" alt="卡片圖片 2" />
+              <div class="tapHint">點我拆封 🎁</div>
+            </div>
+          </div>
+        </button>
+
+        <button class="card" type="button" role="listitem" data-card="3" aria-label="生日卡片 3">
+          <div class="cardInner">
+            <div class="cardFront">
+              <div class="cardLabel">CARD 03</div>
+              <img class="cardImg" src="./assets/card3.jpg" alt="卡片圖片 3" />
+              <div class="tapHint">點我拆封 🎁</div>
+            </div>
+          </div>
+        </button>
+
+        <button class="card" type="button" role="listitem" data-card="4" aria-label="生日卡片 4">
+          <div class="cardInner">
+            <div class="cardFront">
+              <div class="cardLabel">CARD 04</div>
+              <img class="cardImg" src="./assets/card4.jpg" alt="卡片圖片 4" />
+              <div class="tapHint">點我拆封 🎁</div>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <footer class="hint">
+        <span class="dot"></span> 小提醒：你可以把卡片圖片換成壽星照片、梗圖、或你們部門內梗（越羞恥越有效😌）
+      </footer>
+    </section>
+  </main>
+
+  <!-- 彈窗（祝福訊息） -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modalOverlay" data-close="1"></div>
+    <div class="modalBox" role="document">
+      <div class="modalTop">
+        <div class="modalTitle" id="modalTitle">🎊 祝福已送達</div>
+        <button class="iconBtn" type="button" data-close="1" aria-label="關閉">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="msgBubble">
+          <div class="msgFrom">來自宇宙的祝福：</div>
+          <div class="msgText" id="msgText"></div>
+        </div>
+
+        <div class="metaRow">
+          <span class="chip" id="pickedCardChip">Card #</span>
+          <span class="chip" id="pickedMsgChip">Message #</span>
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn" id="btnAgain" type="button">再抽一句 🔁</button>
+        <button class="btn primary" id="btnCopy" type="button">複製祝福 📋</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
