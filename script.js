@@ -1,3 +1,4 @@
+// 每句祝福都能各自設定 From（13 組）
 const MESSAGES = [
   { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
   { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
@@ -28,7 +29,7 @@ const btnNext = document.getElementById("btnNext");
 let currentCard = null;
 let currentMsgIndex = 0;
 
-// 避免連續抽到同一句
+// 避免連續抽到同一句（隨機用）
 let lastMsgIndex = -1;
 function pickMessageIndexNoRepeat() {
   if (MESSAGES.length <= 1) return 0;
@@ -146,6 +147,10 @@ resizeCanvas();
 
 const meteors = [];
 
+/**
+ * ✅ 統一方向：固定「往右下」斜飛
+ * 入口：沿著畫面上邊 + 左邊平均灑點進來（分布會很平均）
+ */
 function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -232,14 +237,20 @@ function openEntryPopup() {
 
   entryPopup.setAttribute("aria-hidden", "false");
 
-  // ✅ 下一幀再噴：確保 popup 已經有尺寸
-  requestAnimationFrame(() => {
-    startConfetti();
-  });
-
+  // 5 秒後自動關閉
   popupTimer = setTimeout(() => {
     closeEntryPopup();
   }, 5000);
+}
+
+function closeEntryPopup() {
+  if (!entryPopup) return;
+
+  entryPopup.setAttribute("aria-hidden", "true");
+  if (popupTimer) {
+    clearTimeout(popupTimer);
+    popupTimer = null;
+  }
 }
 
 // 點 X 關閉
@@ -381,10 +392,10 @@ function stopConfetti() {
 }
 
 window.addEventListener("resize", () => {
-  // 若 popup 開著，跟著重算畫布
   const opened = entryPopup?.getAttribute("aria-hidden") === "false";
   if (opened) resizeConfettiCanvas();
 });
+
 
 const _openEntryPopup = openEntryPopup;
 openEntryPopup = function () {
@@ -393,14 +404,7 @@ openEntryPopup = function () {
 };
 
 const _closeEntryPopup = closeEntryPopup;
-closeEntryPopup = function closeEntryPopup() {
-  if (!entryPopup) return;
-
-  entryPopup.setAttribute("aria-hidden", "true");
+closeEntryPopup = function () {
+  _closeEntryPopup();
   stopConfetti();
-
-  if (popupTimer) {
-    clearTimeout(popupTimer);
-    popupTimer = null;
-  }
-}
+};
