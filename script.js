@@ -1,4 +1,3 @@
-// 每句祝福都能各自設定 From（13 組）
 const MESSAGES = [
   { text: "生日快樂！願你今年的運氣像宇宙補給一樣源源不絕🚀", from: "宇宙司令部" },
   { text: "願你每個願望都像任務指令：收到、執行、成功✅", from: "K小隊" },
@@ -29,7 +28,7 @@ const btnNext = document.getElementById("btnNext");
 let currentCard = null;
 let currentMsgIndex = 0;
 
-// 避免連續抽到同一句（隨機用）
+// 避免連續抽到同一句
 let lastMsgIndex = -1;
 function pickMessageIndexNoRepeat() {
   if (MESSAGES.length <= 1) return 0;
@@ -147,10 +146,6 @@ resizeCanvas();
 
 const meteors = [];
 
-/**
- * ✅ 統一方向：固定「往右下」斜飛
- * 入口：沿著畫面上邊 + 左邊平均灑點進來（分布會很平均）
- */
 function spawnMeteor() {
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -237,20 +232,14 @@ function openEntryPopup() {
 
   entryPopup.setAttribute("aria-hidden", "false");
 
-  // 5 秒後自動關閉
+  // ✅ 下一幀再噴：確保 popup 已經有尺寸
+  requestAnimationFrame(() => {
+    startConfetti();
+  });
+
   popupTimer = setTimeout(() => {
     closeEntryPopup();
   }, 5000);
-}
-
-function closeEntryPopup() {
-  if (!entryPopup) return;
-
-  entryPopup.setAttribute("aria-hidden", "true");
-  if (popupTimer) {
-    clearTimeout(popupTimer);
-    popupTimer = null;
-  }
 }
 
 // 點 X 關閉
@@ -397,11 +386,6 @@ window.addEventListener("resize", () => {
   if (opened) resizeConfettiCanvas();
 });
 
-// ✅ 把 confetti 掛到你的 popup 開/關流程：
-// 你原本 openEntryPopup() 裡加一行 startConfetti()
-// closeEntryPopup() 裡加一行 stopConfetti()
-
-// === 直接覆蓋/補強你的 open/close（如果你不想改原函式就照下面改） ===
 const _openEntryPopup = openEntryPopup;
 openEntryPopup = function () {
   _openEntryPopup();
@@ -409,7 +393,14 @@ openEntryPopup = function () {
 };
 
 const _closeEntryPopup = closeEntryPopup;
-closeEntryPopup = function () {
-  _closeEntryPopup();
+closeEntryPopup = function closeEntryPopup() {
+  if (!entryPopup) return;
+
+  entryPopup.setAttribute("aria-hidden", "true");
   stopConfetti();
-};
+
+  if (popupTimer) {
+    clearTimeout(popupTimer);
+    popupTimer = null;
+  }
+}
