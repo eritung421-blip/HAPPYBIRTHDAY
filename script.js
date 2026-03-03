@@ -247,6 +247,8 @@ function closeEntryPopup() {
   if (!entryPopup) return;
 
   entryPopup.setAttribute("aria-hidden", "true");
+  stopConfetti();
+
   if (popupTimer) {
     clearTimeout(popupTimer);
     popupTimer = null;
@@ -278,6 +280,7 @@ function resizeConfettiCanvas() {
   if (!confettiCanvas || !confettiCtx) return;
   const box = confettiCanvas.parentElement;
   if (!box) return;
+  console.log("confetti rect:", rect.width, rect.height);
 
   const rect = box.getBoundingClientRect();
   const dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -396,15 +399,18 @@ window.addEventListener("resize", () => {
   if (opened) resizeConfettiCanvas();
 });
 
+function openEntryPopup() {
+  if (!entryPopup) return;
 
-const _openEntryPopup = openEntryPopup;
-openEntryPopup = function () {
-  _openEntryPopup();
-  startConfetti();
-};
+  entryPopup.setAttribute("aria-hidden", "false");
 
-const _closeEntryPopup = closeEntryPopup;
-closeEntryPopup = function () {
-  _closeEntryPopup();
-  stopConfetti();
-};
+  // ✅ 等下一幀，popup 已經有尺寸了，再 resize + 噴彩帶
+  requestAnimationFrame(() => {
+    resizeConfettiCanvas();
+    startConfetti();
+  });
+
+  popupTimer = setTimeout(() => {
+    closeEntryPopup();
+  }, 5000);
+}
