@@ -225,3 +225,43 @@ function loop() {
   requestAnimationFrame(loop);
 }
 loop();
+
+// ===== 進站圖片 Popup：可 X 關閉 + 5 秒自動消失 =====
+const entryPopup = document.getElementById("entryPopup");
+const popupCloseBtn = document.getElementById("popupCloseBtn");
+
+let popupTimer = null;
+
+function openEntryPopup() {
+  if (!entryPopup) return;
+
+  entryPopup.setAttribute("aria-hidden", "false");
+
+  // 5 秒後自動關閉
+  popupTimer = setTimeout(() => {
+    closeEntryPopup();
+  }, 5000);
+}
+
+function closeEntryPopup() {
+  if (!entryPopup) return;
+
+  entryPopup.setAttribute("aria-hidden", "true");
+  if (popupTimer) {
+    clearTimeout(popupTimer);
+    popupTimer = null;
+  }
+}
+
+// 點 X 關閉
+popupCloseBtn?.addEventListener("click", closeEntryPopup);
+
+// （可選）點黑色遮罩也關閉：想要就保留，不想要就刪掉
+entryPopup?.addEventListener("click", (e) => {
+  if (e.target?.classList?.contains("popupOverlay")) closeEntryPopup();
+});
+
+// 頁面載入後彈出
+window.addEventListener("load", () => {
+  openEntryPopup();
+});
