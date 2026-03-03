@@ -1,3 +1,12 @@
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100dvh; /* iOS 16+ 穩定 */
+}
+
 :root{
   --bg0:#050714;
   --mint:#7CFFB2;
