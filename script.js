@@ -231,17 +231,6 @@ const popupCloseBtn = document.getElementById("popupCloseBtn");
 
 let popupTimer = null;
 
-function openEntryPopup() {
-  if (!entryPopup) return;
-
-  entryPopup.setAttribute("aria-hidden", "false");
-
-  // 5 秒後自動關閉
-  popupTimer = setTimeout(() => {
-    closeEntryPopup();
-  }, 5000);
-}
-
 function closeEntryPopup() {
   if (!entryPopup) return;
 
@@ -280,8 +269,8 @@ function resizeConfettiCanvas() {
   const box = confettiCanvas.parentElement;
   if (!box) return;
 
-  const rect = box.getBoundingClientRect(); 
-  console.log("confetti rect:", rect.width, rect.height); 
+  const rect = box.getBoundingClientRect();
+  // console.log("confetti rect:", rect.width, rect.height); 
 
   const dpr = Math.max(1, window.devicePixelRatio || 1);
 
@@ -406,6 +395,11 @@ function openEntryPopup() {
     resizeConfettiCanvas();
     startConfetti();
   });
+
+  popupTimer = setTimeout(() => {
+    closeEntryPopup();
+  }, 5000);
+}
 
   popupTimer = setTimeout(() => {
     closeEntryPopup();
