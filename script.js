@@ -27,6 +27,8 @@ const CARD_MESSAGES = {
     { text: "Ann～生日快樂^⑉･-･⑉^ ੭", from: "Marina" },
     { text: "祝福 Ann：\n生日快樂 天天開心", from: "Vivian" },
     { text: "To 安安\nㄋㄏㄢㄢㄕㄖㄎㄌ！！\n今年很可惜不能一起幫你慶生🥲祝你順順利利！\n等待你回歸～～", from: "Jo是愛你" },
+    { text: "Ann 雖然沒法現場一起慶生，\n但還是會在遠端祝你生日快樂～\n媽媽手術順利，早日康復～", from: "資屬於你" },
+
   ],
 };
 
