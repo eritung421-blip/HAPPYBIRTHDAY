@@ -57,8 +57,8 @@ body{
 .bg{
   position: fixed;
   inset: 0;
-  z-index: 0;            /* ✅ 不要負數 */
-  pointer-events: none;  /* ✅ 背景不吃點擊 */
+  z-index: 0;            
+  pointer-events: none;  
   overflow: hidden;
 }
 
@@ -266,7 +266,6 @@ nebula{
 }
 @keyframes spin{ to{ transform: rotate(360deg); } }
 
-/* ===== Modal（變色只在祝福區塊） ===== */
 .modal{ position: fixed; inset: 0; display:none; align-items:center; justify-content:center; z-index: 50; }
 .modal[aria-hidden="false"]{ display:flex; }
 .modalOverlay{ position:absolute; inset:0; background: rgba(0,0,0,.58); backdrop-filter: blur(7px); }
@@ -353,7 +352,6 @@ nebula{
   font-weight: 820;
 }
 
-/* ✅ 拿掉你說的 #card01 / message03 那串：整段不顯示 */
 .metaRow{ display:none !important; }
 
 .modalActions{
@@ -392,7 +390,7 @@ nebula{
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 60; /* 比祝福彈窗高一點 */
+  z-index: 60; 
 }
 .popup[aria-hidden="false"]{ display:flex; }
 
@@ -423,7 +421,7 @@ nebula{
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(10,16,38,.85);
   box-shadow: 0 30px 90px rgba(0,0,0,.65);
-  padding: 14px; /* 讓圖片不要貼邊，看起來更像卡片 */
+  padding: 14px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -433,7 +431,7 @@ nebula{
   display:block;
   width: 100%;
   height: auto;
-  max-height: calc(78vh - 28px); /* 扣掉 popupBox padding */
+  max-height: calc(78vh - 28px); 
   object-fit: contain;
   border-radius: 14px;
 }
